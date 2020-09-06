@@ -21,12 +21,27 @@ class CreateTransactionService {
   }: Request): Promise<Transaction> {
     const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
+    const balanceRepository = getCustomRepository(TransactionRepository);
 
-    const getCategory = await categoryRepository.findOne({
+    const { total } = await balanceRepository.getBalance();
+
+    if (type === 'outcome' && value > total) {
+      throw new AppError('Você não tem salso suficiente!');
+    }
+
+    let getCategory = await categoryRepository.findOne({
       where: {
         title: category,
       },
     });
+
+    if (!getCategory) {
+      const createCategory = categoryRepository.create({
+        title: category,
+      });
+
+      getCategory = await categoryRepository.save(createCategory);
+    }
 
     const transaction = transactionRepository.create({
       type,
