@@ -4,8 +4,9 @@ import {
   Column,
   UpdateDateColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
-
+import Transaction from './Transaction';
 @Entity('categories')
 class Category {
   @PrimaryGeneratedColumn('uuid')
@@ -16,6 +17,9 @@ class Category {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @OneToMany(() => Transaction, transaction => transaction.category)
+  transaction: Transaction;
 
   @UpdateDateColumn()
   updated_at: Date;
